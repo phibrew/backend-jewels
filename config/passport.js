@@ -3,7 +3,7 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { User } from '../models/userModel.js';
 
 export async function setupPassport(){
-    console.log('Google Client ID:', process.env.GOOGLE_CLIENT_ID); // should not be undefined
+    // console.log('Google Client ID:', process.env.GOOGLE_CLIENT_ID); // should not be undefined
     passport.use(
         new GoogleStrategy({
             clientID: process.env.GOOGLE_CLIENT_ID,
