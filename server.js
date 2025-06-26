@@ -19,7 +19,7 @@ const app = express();
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //middleware
-app.use(cors());
+app.use(cors({origin: "http://localhost:5173", credentials: true})); // Allow CORS for the specified origin and allow credentials
 app.use(express.json());  
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -27,7 +27,13 @@ app.use(
     session({
         secret: process.env.SESSION_SECRET,
         resave: false,
-        saveUninitialized: true,
+        saveUninitialized: false,
+        cookie: {
+            httpOnly: true,
+            secure: false, // set to true in production with HTTPS
+            maxAge: 1000 * 60 * 60 * 24, // 1 day
+            sameSite: 'lax' // or 'none' if using HTTPS + cross-origin
+        }
     })
 )
 app.use(passport.initialize());
@@ -50,8 +56,9 @@ app.use(passport.session());
 
 //routes
 import router from './routes/routes.js';
+import authRouter from './routes/authRouter.js'; // Import the authentication routes
 app.use('/', router);
-
+app.use('/otp', authRouter); // Use the same router for authentication routes
 //server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

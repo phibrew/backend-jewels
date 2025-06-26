@@ -1,7 +1,7 @@
 import { Product } from "../models/productModel.js";
 
 export const createProduct = async (req, res) => {
-    try {
+    try { 
         const images = req.file ? req.file.map(file=>
             `uploads/products/${file.filename}`
         ): []; // Assuming you're using multer for file uploads

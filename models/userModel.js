@@ -5,34 +5,29 @@ import jwt from "jsonwebtoken";
 const userSchema = new mongoose.Schema({
     googleId: { type: String, sparse: true, unique: true },
     name: { type: String},
-    email: { type: String, unique: true, lowercase: true },
+    email: { type: String, unique: true, lowercase: true, required: true },
     image: { type: String },
-    role: { type: String, enum: ["admin", "user"], default: "user" },
-    password: { type: String, select: false, minlength: 8},
+    role: { type: String, enum: ["admin", "user"], default: "user" }
 }, { timestamps: true });
 
-userSchema.pre("save", async function (next) {
-    if(!this.isModified("password")) {
-        return next();
-    }
-    this.password = bcrypt.hash(this.password, 10);
-    next();
-})
+// userSchema.pre("save", async function (next) {
+//     if(!this.isModified("password")) {
+//         return next();
+//     }
+//     this.password = bcrypt.hash(this.password, 10);
+//     next();
+// })
 
-userSchema.methods.comparePassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
-}
+// userSchema.methods.comparePassword = async function (password) {
+//     return await bcrypt.compare(password, this.password);
+// }
 
-userSchema.methods.findByCredentials = async function (email, password){
-    const user = await this.findOne({ email }).select("+password");
+userSchema.methods.findByCredentials = async function (email){
+    const user = await this.findOne({ email });
     if(!user){
         return null;
     }
-
-    const isMatch = await user.comparePassword(password);
-    if(!isMatch){
-        return null;
-    }
+    
     return user;
 }
 

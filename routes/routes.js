@@ -5,45 +5,26 @@ import { getProductByID, getAllProducts,
 } from '../controllers/productController.js';
 import upload from '../middlewares/multer.js';
 import { protect, restrictTo } from '../middlewares/authMiddleware.js';
-import {register, login} from '../controllers/authController.js';
+import {login} from '../controllers/authController.js';
 
 const router = Router();
 
-router.get('/user/register', register);
-router.get('/auth/google', 
-    passport.authenticate('google', { scope: ['profile', 'email'], 
-      accessType: 'offline', prompt: 'consent'
-     }));
-router.get('/auth/google/callback', 
-    passport.authenticate('google', { 
-        failureRedirect: '/login/failed',
-        successRedirect: '/login/success',}),
-    (req, res) => {
-        res.redirect('/dashboard');
-    }
-)
-// router.get('/login/success', (req, res) => {
-//   if (req.user) {
-//     res.status(200).json({
-//       message: 'Login successful',
-//       user: req.user,
-//     });
-//   } else {
-//     res.status(401).json({ message: 'Unauthorized' });
-//   }
-// });
+router.get('/auth/google', passport.authenticate('google', {
+  scope: ['profile', 'email'],
+  accessType: 'offline',
+  prompt: 'consent'
+}));
 
-router.get('/login/success', login);
+// Handle the callback
+router.get('/auth/google/callback', passport.authenticate('google', {
+  failureRedirect: '/',
+  session: true
+}), (req, res) => {
+    res.redirect('http://localhost:5173/dashboard');
+  }
+);
 
-router.get('/login/failed', (req, res) => {
-  res.status(401).json({ message: 'Login failed' });
-});
-
-router.get('/logout', (req, res) => {
-  req.logout(() => {
-    res.redirect('/');
-  });
-});
+router.get('/login', login)
 
 //product routes
 router.post('/products', protect, restrictTo('admin'), upload.array('image', 5) ,createProduct); // Create a new product
