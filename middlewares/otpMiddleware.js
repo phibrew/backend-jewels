@@ -58,7 +58,15 @@ export const verifyOtp = async(req, res) => {
             user = new User({ email });
             await user.save();  
         }
-        res.status(200).json({ message: 'OTP verified successfully', user });
+        const token = user.generateAuthToken();
+        res.status(200)
+        .cookie('token', token, {
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+            sameSite: 'strict', // Helps prevent CSRF attacks
+            maxAge: 7   * 24 * 60 * 60 * 1000 // Cookie expires
+        })
+        .json({ message: 'OTP verified successfully', user, token});
     } catch (error) {
         console.error('Error verifying OTP:', error);
         res.status(500).json({ message: 'Failed to verify OTP' });

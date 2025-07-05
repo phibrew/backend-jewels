@@ -6,6 +6,7 @@ import { getProductByID, getAllProducts,
 import upload from '../middlewares/multer.js';
 import { protect, restrictTo } from '../middlewares/authMiddleware.js';
 import {login} from '../controllers/authController.js';
+import { User } from '../models/userModel.js';
 
 const router = Router();
 
@@ -19,15 +20,21 @@ router.get('/auth/google', passport.authenticate('google', {
 router.get('/auth/google/callback', passport.authenticate('google', {
   failureRedirect: '/',
   session: true
-}), (req, res) => {
-    res.redirect('http://localhost:5173/dashboard');
+}), async(req, res) => {
+  try {
+      const token = req.user?.generateAuthToken();
+      res.redirect(`http://localhost:5173/google-callback?token=${token}`); // Redirect to your frontend app
+  } catch (err) {
+      console.error(err);
+      res.redirect('http://localhost:5173/signin');
+  }
   }
 );
 
 router.get('/login', login)
 
 //product routes
-router.post('/products', protect, restrictTo('admin'), upload.array('image', 5) ,createProduct); // Create a new product
+router.post('/products', protect, restrictTo('admin'),upload.array('image', 5) ,createProduct); // Create a new product
 router.get('/products/:id', getProductByID); // Get a product by ID
 router.get('/products', getAllProducts); // Get all products
 router.put('/products/:id',protect, restrictTo('admin'), updateProduct); // Update a product by ID
