@@ -25,7 +25,7 @@ export async function setupPassport(){
                         image: profile._json.picture,
                     }).save();
                 }
-                return done(null, user);
+                return done(null, user)
             } catch (error) {
                 return done(error, null);
             }
@@ -48,5 +48,5 @@ export async function setupPassport(){
             done(error, null);
         }
     })
-}
+} 
 

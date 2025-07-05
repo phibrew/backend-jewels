@@ -15,15 +15,15 @@ const productSchema = new mongoose.Schema({
     },
     images: [String],
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Category',
+        type: String,
+        required: true 
     },
     tags: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Tag' }],
     stock: {
-        type: Number,
+        type: Number,   
         default: 0,
     },
-    reviews: [
+    reviews: [  
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Review',

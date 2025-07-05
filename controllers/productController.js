@@ -2,21 +2,26 @@ import { Product } from "../models/productModel.js";
 
 export const createProduct = async (req, res) => {
     try { 
-        const images = req.file ? req.file.map(file=>
+        const images = req.files ? req.files.map(file=>
             `uploads/products/${file.filename}`
         ): []; // Assuming you're using multer for file uploads
         const { name, description, price, category, stock } = req.body;
         if(!name || !description || !price || !images || !category) {
             return res.status(400).json({ message: "All fields are required" });
         }
-        if (typeof price !== 'number' || price <= 0) {
+        const numericPrice = parseFloat(price);
+        if (isNaN(numericPrice) || numericPrice <= 0) {
             return res.status(400).json({ message: "Price must be a positive number" });
+        }
+        const numericStock = parseInt(stock);
+        if (isNaN(numericStock) || numericStock < 0) {
+            return res.status(400).json({ message: "Stock must be a non-negative integer" });
         }
         const newProduct = new Product({
         name,
         description,
         price,
-        images,
+        images,     
         category,
         stock,
         });
@@ -41,7 +46,7 @@ export const getProductByID = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
     try {
-        const { page=1, limit=10 } = req.query();
+        const { page=1, limit=10 } = req.query;
         const products = await Product.find()
             .limit(limit).skip((page - 1) * limit);
         return res.status(200).json({ message: "Products fetched successfully", products });
