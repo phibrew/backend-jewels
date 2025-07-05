@@ -10,6 +10,14 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { setupPassport } from './config/passport.js'; // Import the passport configuration file
+import RateLimit from 'express-rate-limit';
+
+var limiter = RateLimit({
+    windowMs: 15 * 60 * 1000, 
+    max: 100, // 100 requests per windowMs
+})
+
+app.use(limiter);
 
 await setupPassport(); // Call the function to set up passport
 const __filename = fileURLToPath(import.meta.url);
